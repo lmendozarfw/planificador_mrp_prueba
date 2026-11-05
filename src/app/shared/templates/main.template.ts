@@ -13,7 +13,7 @@ import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { ChevronDown } from '@primeicons/angular';
 import { MenuModule } from 'primeng/menu';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'main-template',
@@ -43,40 +43,27 @@ import { RouterOutlet } from '@angular/router';
                                     <p-sidebar-group-content>
                                         <p-sidebar-menu>
                                             <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton [isActive]="true">
+                                                <button
+                                                    pSidebarMenuButton
+                                                    routerLink="/app/mrp"
+                                                    routerLinkActive
+                                                    #rlaDatos="routerLinkActive"
+                                                    [isActive]="rlaDatos.isActive"
+                                                >
                                                     <svg data-p-icon="home"></svg>
-                                                    <span>Home</span>
+                                                    <span>Datos de entrada</span>
                                                 </button>
                                             </p-sidebar-menu-item>
                                             <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton>
-                                                    <svg data-p-icon="inbox"></svg>
-                                                    <span>Inbox</span>
-                                                </button>
-                                                <p-sidebar-menu-badge>3</p-sidebar-menu-badge>
-                                            </p-sidebar-menu-item>
-                                            <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton>
-                                                    <svg data-p-icon="search"></svg>
-                                                    <span>Search</span>
-                                                </button>
-                                            </p-sidebar-menu-item>
-                                            <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton>
-                                                    <svg data-p-icon="users"></svg>
-                                                    <span>Team</span>
-                                                </button>
-                                            </p-sidebar-menu-item>
-                                            <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton>
-                                                    <svg data-p-icon="bell"></svg>
-                                                    <span>Notifications</span>
-                                                </button>
-                                            </p-sidebar-menu-item>
-                                            <p-sidebar-menu-item>
-                                                <button pSidebarMenuButton>
-                                                    <svg data-p-icon="cog"></svg>
-                                                    <span>Settings</span>
+                                                <button
+                                                    pSidebarMenuButton
+                                                    routerLink="/app/mrp/resultados"
+                                                    routerLinkActive
+                                                    #rlaResultados="routerLinkActive"
+                                                    [isActive]="rlaResultados.isActive"
+                                                >
+                                                    <svg data-p-icon="chart-bar"></svg>
+                                                    <span>Resultados</span>
                                                 </button>
                                             </p-sidebar-menu-item>
                                         </p-sidebar-menu>
@@ -102,8 +89,8 @@ import { RouterOutlet } from '@angular/router';
                         <button pButton pSidebarTrigger target="mobile-nav" severity="secondary" text size="small">
                             <svg data-p-icon="sidebar"></svg>
                         </button>
-                        <span class="text-sm font-medium">Configuración</span>
-                        <span class="ml-auto text-xs text-slate-900 rounded-md bg-slate-100 px-2 py-1"> <span class="text-xs text-slate-600">Empleado</span> {{ '#5366' }}</span>
+                        <span class="text-sm font-medium">Planificador MRP</span>
+                        <span class="ml-auto text-xs text-slate-900 rounded-md bg-slate-100 px-2 py-1"> <span class="text-xs text-slate-600">Empleado</span> {{ '#4559' }}</span>
                     </header>
                     <div class="flex-1 p-4 flex flex-col gap-4">
                         <router-outlet />
@@ -113,7 +100,7 @@ import { RouterOutlet } from '@angular/router';
         </div>
     `,
     standalone: true,
-    imports: [AvatarModule, SidebarModule, ButtonModule, Home, Inbox, Search, Users, Bell, Cog, Sidebar, Menu, ChevronDown, MenuModule, RouterOutlet],
+    imports: [AvatarModule, SidebarModule, ButtonModule, Home, Inbox, Search, Users, Bell, Cog, Sidebar, Menu, ChevronDown, MenuModule, RouterOutlet, RouterLink, RouterLinkActive],
 })
 export class MainTemplate {
     isMobile = signal(false);
