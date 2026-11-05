@@ -1,0 +1,467 @@
+
+<div class="resultado-mrp">
+
+    <!-- ENCABEZADO -->
+    <div class="page-header">
+        <div>
+            <div class="header-title">
+                <h2>Resultado de planificación</h2>
+
+                <p-tag
+                    [value]="nombreEstado(resultado().estado)"
+                    [severity]="severidadEstado(resultado().estado)"
+                />
+            </div>
+
+            <div class="execution-info">
+                <span>
+                    <i class="pi pi-hashtag"></i>
+                    {{ resultado().idejecucion }}
+                </span>
+
+                <span>
+                    <i class="pi pi-sitemap"></i>
+                    {{ resultado().modoPlanificacion }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- INDICADORES -->
+    <div class="metrics-grid">
+
+        <p-card styleClass="metric-card">
+            <div class="metric-content">
+                <div class="metric-icon blue">
+                    <i class="pi pi-box"></i>
+                </div>
+
+                <div>
+                    <span class="metric-label">Total materiales</span>
+                    <h3>{{ resumen().totalMateriales }}</h3>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="metric-card">
+            <div class="metric-content">
+                <div class="metric-icon green">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+
+                <div>
+                    <span class="metric-label">Cubiertos totalmente</span>
+                    <h3>{{ resumen().cubiertosTotalmente }}</h3>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="metric-card">
+            <div class="metric-content">
+                <div class="metric-icon orange">
+                    <i class="pi pi-exclamation-circle"></i>
+                </div>
+
+                <div>
+                    <span class="metric-label">Cubiertos parcialmente</span>
+                    <h3>{{ resumen().cubiertosParcialmente }}</h3>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="metric-card">
+            <div class="metric-content">
+                <div class="metric-icon red">
+                    <i class="pi pi-clock"></i>
+                </div>
+
+                <div>
+                    <span class="metric-label">Retrasados</span>
+                    <h3>{{ resumen().retrasados }}</h3>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="metric-card">
+            <div class="metric-content">
+                <div class="metric-icon red">
+                    <i class="pi pi-times-circle"></i>
+                </div>
+
+                <div>
+                    <span class="metric-label">No cumplidos</span>
+                    <h3>{{ resumen().noCumplidos }}</h3>
+                </div>
+            </div>
+        </p-card>
+
+    </div>
+
+    <!-- COBERTURA -->
+    <p-card styleClass="section-card">
+        <div class="coverage-header">
+            <div>
+                <h3>Cobertura de materiales</h3>
+                <p>Resultado general de disponibilidad y abastecimiento.</p>
+            </div>
+
+            <strong class="coverage-value">
+                {{ porcentajeCobertura() }}%
+            </strong>
+        </div>
+
+        <p-progressbar
+            [value]="porcentajeCobertura()"
+            [showValue]="false"
+        />
+
+        <div class="coverage-footer">
+            <span>
+                {{ resumen().cubiertosTotalmente }}
+                de
+                {{ resumen().totalMateriales }}
+                materiales cubiertos
+            </span>
+
+            <span>
+                {{ materialesQueRequierenAbastecimiento() }}
+                requieren abastecimiento
+            </span>
+        </div>
+    </p-card>
+
+    <!-- TABLA DE MATERIALES -->
+    <p-card styleClass="section-card">
+
+        <div class="section-header">
+            <div>
+                <h3>Materiales planificados</h3>
+                <p>
+                    Consulta los requerimientos y cómo se cubrirá
+                    cada material.
+                </p>
+            </div>
+
+            <span class="section-counter">
+                {{ resultado().resultadosMateriales.length }} materiales
+            </span>
+        </div>
+
+        <div class="table-toolbar">
+            <input
+                pInputText
+                type="text"
+                [value]="busquedaMaterial()"
+                (input)="actualizarBusquedaMaterial(
+                    $any($event.target).value
+                )"
+                placeholder="Buscar material..."
+                class="search-input"
+            />
+        </div>
+
+        <p-table
+            [value]="resultado().resultadosMateriales"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [globalFilterFields]="['idMaterial', 'estado']"
+            [tableStyle]="{ 'min-width': '900px' }"
+            dataKey="idMaterial"
+            stripedRows
+            showGridlines
+            [rowTrackBy]="trackByMaterial"
+        >
+
+            <ng-template #header>
+                <tr>
+                    <th>Material</th>
+                    <th>Requerimiento</th>
+                    <th>Inventario</th>
+                    <th>Suministro programado</th>
+                    <th>Cantidad propuesta</th>
+                    <th>Cobertura</th>
+                    <th>Estado</th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-material>
+                <tr>
+                    <td>
+                        <strong>{{ material.idMaterial }}</strong>
+
+                        <div class="material-subtitle">
+                            {{ material.unidadMedida }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ formatoCantidad(material.cantidadRequeridaTotal) }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ formatoCantidad(material.cantidadDisponible) }}
+                    </td>
+
+                    <td>
+                        {{ formatoCantidad(material.cantidadCubiertaSuministroProgramado) }}
+                    </td>
+
+                    <td>
+                        {{ formatoCantidad(material.cantidadPropuesta) }}
+                    </td>
+
+                    <td>
+                        <div class="material-coverage">
+                            <span>
+                                {{ porcentajeMaterial(material) }}%
+                            </span>
+
+                            <p-progressbar
+                                [value]="porcentajeMaterial(material)"
+                                [showValue]="false"
+                            />
+                        </div>
+                    </td>
+
+                    <td>
+                        <p-tag
+                            [value]="nombreEstado(material.estado)"
+                            [severity]="severidadEstado(material.estado)"
+                        />
+                    </td>
+                </tr>
+
+                <!-- DESGLOSE DE ABASTECIMIENTOS -->
+                <tr class="detail-row">
+                    <td colspan="7">
+                        <div class="material-detail">
+
+                            <div class="detail-heading">
+                                <strong>
+                                    <i class="pi pi-list"></i>
+                                    Desglose de abastecimiento
+                                </strong>
+
+                                <span>
+                                    Requerido:
+                                    {{ formatoCantidad(material.cantidadRequeridaTotal) }}
+                                    {{ material.unidadMedida }}
+                                </span>
+                            </div>
+
+                            <div class="supply-list">
+
+                                @for (
+                                    suministro of material.abastecimientos;
+                                    track $index
+                                ) {
+                                    <div class="supply-item">
+
+                                        <div class="supply-type">
+                                            <p-tag
+                                                [value]="nombreAbastecimiento(suministro.tipo)"
+                                                [severity]="severidadAbastecimiento(suministro.tipo)"
+                                            />
+
+                                            <span class="supply-source">
+                                                {{ suministro.idFuente || 'Origen interno' }}
+                                            </span>
+                                        </div>
+
+                                        <div class="supply-quantity">
+                                            <strong>
+                                                {{ formatoCantidad(suministro.cantidad) }}
+                                                {{ suministro.unidadMedida }}
+                                            </strong>
+
+                                            @if (suministro.cantidadOrden) {
+                                                <span>
+                                                    {{ formatoCantidad(suministro.cantidadOrden) }}
+                                                    {{ suministro.unidadMedidaOrden }}
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <div class="supply-date">
+                                            <span>Disponibilidad</span>
+                                            <strong>
+                                                {{ formatoFecha(suministro.fechaDisponibilidad) }}
+                                            </strong>
+                                        </div>
+
+                                        <div>
+                                            <p-tag
+                                                [value]="nombreEstado(suministro.estado)"
+                                                [severity]="severidadEstado(suministro.estado)"
+                                            />
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        No se encontraron materiales.
+                    </td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+
+    </p-card>
+
+    <!-- ÓRDENES SUGERIDAS -->
+    <p-card styleClass="section-card">
+
+        <div class="section-header">
+            <div>
+                <h3>Órdenes sugeridas de abastecimiento</h3>
+                <p>
+                    Propuestas de compra generadas por el motor MRP.
+                </p>
+            </div>
+
+            <span class="section-counter">
+                {{ totalOrdenes() }} órdenes
+            </span>
+        </div>
+
+        <div class="table-toolbar">
+            <input
+                pInputText
+                type="text"
+                [value]="busquedaOrden()"
+                (input)="actualizarBusquedaOrden(
+                    $any($event.target).value
+                )"
+                placeholder="Buscar por material, proveedor u orden..."
+                class="search-input"
+            />
+        </div>
+
+        <p-table
+            [value]="resultado().ordenesSugeridas"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [globalFilterFields]="[
+                'idOrdenSugerida',
+                'idMaterial',
+                'idFuente',
+                'criterioSeleccion'
+            ]"
+            [tableStyle]="{ 'min-width': '900px' }"
+            stripedRows
+            showGridlines
+        >
+
+            <ng-template #header>
+                <tr>
+                    <th>Orden</th>
+                    <th>Material</th>
+                    <th>Proveedor</th>
+                    <th>Cantidad a solicitar</th>
+                    <th>Fecha requerida</th>
+                    <th>Disponibilidad esperada</th>
+                    <th>Criterio</th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-orden>
+                <tr>
+                    <td>
+                        <strong>{{ orden.idOrdenSugerida }}</strong>
+                    </td>
+
+                    <td>{{ orden.idMaterial }}</td>
+
+                    <td>
+                        <span class="supplier-name">
+                            {{ orden.idFuente }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ formatoCantidad(orden.cantidad) }}
+                            {{ orden.unidadMedida }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ formatoFecha(orden.fechaRequerida) }}
+                    </td>
+
+                    <td>
+                        <p-tag
+                            [value]="formatoFecha(orden.fechaDisponibilidadEsperada)"
+                            severity="success"
+                        />
+                    </td>
+
+                    <td>
+                        <span class="selection-criteria">
+                            {{ orden.criterioSeleccion?.replaceAll('_', ' ') }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        No existen órdenes sugeridas.
+                    </td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+
+    </p-card>
+
+    <!-- ADVERTENCIAS Y ERRORES -->
+    @if (
+        resultado().advertencias.length > 0 ||
+        resultado().errores.length > 0
+    ) {
+
+        <p-card styleClass="section-card">
+
+            <h3>Observaciones de la ejecución</h3>
+
+            @for (
+                advertencia of resultado().advertencias;
+                track $index
+            ) {
+                <div class="message warning">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    {{ advertencia }}
+                </div>
+            }
+
+            @for (
+                error of resultado().errores;
+                track $index
+            ) {
+                <div class="message error">
+                    <i class="pi pi-times-circle"></i>
+                    {{ error }}
+                </div>
+            }
+
+        </p-card>
+
+    }
+
+</div>

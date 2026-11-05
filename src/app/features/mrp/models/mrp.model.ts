@@ -192,7 +192,7 @@ export function crearEstadoInicial(): MrpState {
 
   return {
     version: '1.0',
-    idEjecucion: `MRP-${fecha.replaceAll('-', '')}-0001`,
+    idEjecucion: `MRP-${fecha?.replaceAll('-', '')}-0001`,
     ejecucion: {
       fecha_planificacion: fecha,
       fecha_fin_horizonte: fin.toISOString().slice(0, 10),

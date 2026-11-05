@@ -11,7 +11,7 @@ export function nextId(prefix: string, existing: string[]): string {
 }
 
 export function generarIdEjecucion(fecha: string): string {
-  const limpia = fecha.replaceAll('-', '');
+  const limpia = fecha?.replaceAll('-', '');
   return `MRP-${limpia}-0001`;
 }
 
