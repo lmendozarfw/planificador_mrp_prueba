@@ -1,0 +1,90 @@
+<div class="w-full min-w-[360px] max-w-md bg-white rounded-xl shadow-card border border-slate-100 p-8">
+    <div class="flex flex-col items-center mb-6">
+        <span
+            class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#052e16] to-[#22c55e] text-white mb-4">
+            <svg data-p-icon="check-circle" [size]="24"></svg>
+        </span>
+        <h2 class="text-2xl font-bold text-slate-800 mb-1 text-center">Bienvenido de nuevo</h2>
+        @if (mode() === 'qr') {
+        <p class="text-slate-500 text-sm text-center">Escanea el QR de tu gafete para iniciar sesión</p>
+        } @else {
+        <p class="text-slate-500 text-sm text-center">Ingresa tus credenciales para acceder al sistema</p>
+        }
+    </div>
+
+    @if (mode() === 'qr') {
+    <div class="flex flex-col gap-4">
+        <app-qr-scanner [size]="300" [busy]="authStore.loading()"
+            [busyText]="'Validando ' + (badgeUser() ?? 'credenciales') + '…'"
+            hint="Apunta el QR de tu gafete" (scanned)="onBadgeScanned($event)" />
+
+        @if (badgeUser() && !authStore.loading()) {
+        <div class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+            <svg data-p-icon="user" [size]="16"></svg>
+            <span class="min-w-0 flex-1 truncate">
+                Sesión iniciada como <b>{{ badgeUser() }}</b>
+            </span>
+        </div>
+        } @else {
+        <div class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs text-blue-800">
+            <svg data-p-icon="info-circle" [size]="16"></svg>
+            <span>El gafete trae tu usuario y contraseña en el QR, así que el acceso es automático.</span>
+        </div>
+        }
+    </div>
+    } @else {
+    <form [formGroup]="loginForm" class="flex flex-col gap-5" (ngSubmit)="onSubmit()">
+        <div class="flex flex-col gap-1.5">
+            <app-form-label required>Nombre de usuario</app-form-label>
+            <input pInputText formControlName="user" type="text" placeholder="nombre.apellido" class="w-full"
+                [invalid]="!!userError" />
+            @if (userError) {
+            <span class="text-xs text-rose-600">{{ userError }}</span>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+            <app-form-label required>Contraseña</app-form-label>
+            <div class="relative">
+                <input pInputPassword formControlName="password" [mask]="passwordMask()" class="w-full pr-10"
+                    placeholder="••••••••••" [invalid]="!!passwordError" />
+                <button type="button" (click)="togglePasswordMask()"
+                    [attr.aria-label]="passwordMask() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+                    class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-400 transition hover:text-slate-600">
+                    @if (passwordMask()) {
+                    <svg data-p-icon="eye" [size]="16"></svg>
+                    } @else {
+                    <svg data-p-icon="eye-slash" [size]="16"></svg>
+                    }
+                </button>
+            </div>
+            @if (passwordError) {
+            <span class="text-xs text-rose-600">{{ passwordError }}</span>
+            }
+        </div>
+
+        <button pButton type="submit" [loading]="authStore.loading()"
+            class="mt-2 w-full bg-[#16a34a]! hover:bg-[#15803d]! border-transparent! text-white!">
+            <span class="flex items-center justify-center gap-2">
+                @if (authStore.loading()) {
+                <svg data-p-icon="spinner" [spin]="true" [size]="16"></svg>
+                } @else {
+                <svg data-p-icon="sign-in" [size]="16"></svg>
+                }
+                Iniciar sesión
+            </span>
+        </button>
+    </form>
+    }
+
+    <button type="button"
+        class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-[#16a34a] hover:text-[#16a34a] active:scale-[0.99]"
+        (click)="toggleMode()">
+        @if (mode() === 'qr') {
+        <svg data-p-icon="pencil" [size]="16"></svg>
+        } @else {
+        <svg data-p-icon="qrcode" [size]="16"></svg>
+        }
+        {{ mode() === 'qr' ? 'Ingresar manualmente' : 'Escanear QR del gafete' }}
+    </button>
+</div>
